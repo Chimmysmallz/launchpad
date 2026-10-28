@@ -1,0 +1,19 @@
+# LaunchPad runtime data (your deployed apps live here, never commit them)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build output
+dist/
+*.zip

@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        python: ["3.9", "3.13"]
+        include:
+          - os: ubuntu-22.04
+            python: "3.8"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check syntax
+        run: python -m py_compile launchpad.py
+      - name: Run end-to-end tests (no dependencies)
+        run: python -m unittest discover -s tests -v
+      - name: Add optional QR package and test again
+        run: |
+          python -m pip install qrcode pillow
+          python -m unittest discover -s tests -v

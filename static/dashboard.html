@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LaunchPad · Local App Hosting</title>
+<style>
+:root{--bg:#0f1720;--panel:#16212d;--card:#1b2836;--line:#2a3a4c;--text:#e8eef5;--muted:#8fa3b8;--accent:#2ec4b6;--accent2:#ffb347;--danger:#ff6b6b;--ok:#4ade80}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{display:flex;align-items:center;gap:16px;padding:18px 32px;border-bottom:1px solid var(--line);background:var(--panel)}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#1a8f86);display:grid;place-items:center;font-size:20px}
+h1{font-size:20px;margin:0}header .sub{color:var(--muted);font-size:13px}
+.net{margin-left:auto;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+select,input[type=text],input[type=number]{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px}
+main{max-width:1180px;margin:0 auto;padding:28px 32px 60px}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{font-size:15px;margin:0 0 4px}.panel p.hint{color:var(--muted);font-size:13px;margin:0 0 14px}
+#drop{border:2px dashed var(--line);border-radius:12px;padding:34px 20px;text-align:center;transition:.15s}
+#drop.over{border-color:var(--accent);background:rgba(46,196,182,.07)}
+#drop .big{font-size:17px;font-weight:600;margin-bottom:6px}#drop .small{color:var(--muted);font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button,.btn{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 14px;font:inherit;font-size:13.5px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+button:hover,.btn:hover{border-color:var(--accent)}
+.primary{background:var(--accent);color:#04201d;border-color:var(--accent);font-weight:600}
+.danger{color:var(--danger)}
+.bar{height:6px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:14px;display:none}.bar div{height:100%;width:0;background:var(--accent);transition:width .2s}
+#status{font-size:13px;color:var(--muted);margin-top:8px;min-height:18px}
+.sites{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;margin-top:26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.card .top{display:flex;align-items:center;gap:10px}.dot{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}.dot.off{background:var(--danger);box-shadow:none}
+.card h3{margin:0;font-size:16px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}.tag.linked{color:var(--accent2);border-color:var(--accent2)}
+.url{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:8px;padding:8px 10px;font-family:Consolas,monospace;font-size:13px}
+.url a{color:var(--accent);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.url span{color:var(--muted);font-family:"Segoe UI";font-size:11px;width:52px}
+.meta{font-size:12px;color:var(--muted)}.err{font-size:12px;color:var(--danger)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}.actions button,.actions .btn{padding:6px 10px;font-size:12.5px}
+.drawer{display:none;border-top:1px solid var(--line);padding-top:12px;font-size:13px}.drawer.open{display:block}
+.qr{text-align:center}.qr img{background:#fff;border-radius:10px;padding:6px;width:190px;height:190px}
+.hist{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto}.hist li{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.hist .when{flex:1}.hist .cur{color:var(--ok);font-weight:600;font-size:12px}
+label.chk{display:flex;align-items:center;gap:8px;margin:8px 0}
+.empty{color:var(--muted);text-align:center;padding:40px;border:1px dashed var(--line);border-radius:14px;margin-top:26px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--accent);color:#04201d;padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🚀</div>
+  <div><h1>LaunchPad</h1><div class="sub">Drop an app, get a link. Test it here and on your phone.</div></div>
+  <div class="net">Phone address <select id="ip"></select></div>
+</header>
+<main>
+  <div class="grid2">
+    <section class="panel">
+      <h2>Deploy a new app</h2>
+      <p class="hint">Drag a project folder, a .zip or a single .html file here. LaunchPad finds index.html by itself, including inside dist, build or public.</p>
+      <div id="drop">
+        <div class="big">Drop your app here</div>
+        <div class="small">node_modules and .git folders are skipped automatically</div>
+        <div class="row" style="justify-content:center">
+          <button class="primary" onclick="pick('folder')">Choose folder</button>
+          <button onclick="pick('files')">Choose .zip or files</button>
+          <input type="text" id="newName" placeholder="App name (optional)" style="width:190px">
+        </div>
+      </div>
+      <div class="bar" id="bar"><div></div></div>
+      <div id="status"></div>
+    </section>
+    <section class="panel">
+      <h2>Link a folder (auto-updates)</h2>
+      <p class="hint">Point at a folder on this computer. Every time you save a file there, the open app refreshes itself, on the laptop and the phone.</p>
+      <input type="text" id="linkPath" placeholder="C:\Users\you\Projects\LoanReady\dist" style="width:100%">
+      <input type="text" id="linkName" placeholder="App name (optional)" style="width:100%;margin-top:8px">
+      <div class="row"><button class="primary" onclick="linkFolder()">Link folder</button></div>
+    </section>
+  </div>
+  <div id="sites" class="sites"></div>
+</main>
+<input type="file" id="pickFolder" webkitdirectory multiple hidden>
+<input type="file" id="pickFiles" multiple hidden accept=".zip,.html,.htm,.css,.js,.json,.png,.jpg,.jpeg,.svg,.webp,.gif,.ico">
+<div class="toast" id="toast"></div>
+<script>
+const SKIP=new Set(['node_modules','.git','__MACOSX','.DS_Store','Thumbs.db','__pycache__','.venv','venv']);
+let INFO={ips:['127.0.0.1'],qr:false}, SITES=[], target=null, openDrawers={};
+const $=s=>document.querySelector(s);
+const TOKEN=(document.querySelector('meta[name=lp-token]')||{}).content||'';
+const H=(extra={})=>Object.assign({'X-LaunchPad-Token':TOKEN},extra);
+const ip=()=>$('#ip').value||INFO.ips[0];
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmtSize(b){return b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB'}
+function fmtTime(t){return new Date(t*1000).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+function okPath(p){return !p.split('/').some(x=>SKIP.has(x))}
+
+async function api(url,opt={}){opt.headers=H(opt.headers||{});const r=await fetch(url,opt);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Something went wrong.');return d}
+
+async function init(){
+  INFO=await api('/api/info');
+  $('#ip').innerHTML=INFO.ips.map(i=>`<option>${i}</option>`).join('');
+  const saved=localStorage.getItem('lp-ip');if(saved&&INFO.ips.includes(saved))$('#ip').value=saved;
+  $('#ip').onchange=()=>{localStorage.setItem('lp-ip',ip());render()};
+  load();
+}
+async function load(){SITES=(await api('/api/sites')).sites;render()}
+
+function render(){
+  const box=$('#sites');
+  if(!SITES.length){box.className='';box.innerHTML='<div class="empty">No apps yet. Drop one above and it will appear here with its own link.</div>';return}
+  box.className='sites';
+  box.innerHTML=SITES.map(s=>{
+    const phone=`http://${ip()}:${s.port}/`, d=openDrawers[s.slug]||'';
+    const cur=(s.deploys||[]).find(x=>x.id===s.current);
+    const meta=s.type==='linked'?`Linked to ${esc(s.path)}${s.publish_dir?'\\'+esc(s.publish_dir):''}`
+      :(cur?`Live version from ${fmtTime(cur.time)} · ${cur.files} files · ${fmtSize(cur.size)}${cur.publish_dir?' · serving /'+esc(cur.publish_dir):''}`:'No live version');
+    return `<div class="card">
+      <div class="top"><div class="dot ${s.running?'':'off'}"></div><h3 title="${esc(s.name)}">${esc(s.name)}</h3>
+        <span class="tag ${s.type==='linked'?'linked':''}">${s.type==='linked'?'Linked folder':'Uploaded'}</span></div>
+      <div class="url"><span>Laptop</span><a href="${s.local_url}" target="_blank">${s.local_url}</a><button onclick="copy('${s.local_url}')">Copy</button></div>
+      <div class="url"><span>Phone</span><a href="${phone}" target="_blank">${phone}</a><button onclick="copy('${phone}')">Copy</button></div>
+      <div class="meta">${meta}</div>${s.error?`<div class="err">${esc(s.error)}</div>`:''}
+      <div class="actions">
+        <a class="btn primary" href="${s.local_url}" target="_blank">Open</a>
+        ${INFO.qr?`<button onclick="toggle('${s.slug}','qr')">Phone QR</button>`:''}
+        ${s.type!=='linked'?`<button onclick="redeploy('${s.slug}')">Deploy new version</button><button onclick="toggle('${s.slug}','hist')">History</button>`:''}
+        <button onclick="toggle('${s.slug}','set')">Settings</button>
+        <a class="btn" href="/api/sites/${s.slug}/download">Download .zip</a>
+      </div>
+      <div class="drawer ${d==='qr'?'open':''}"><div class="qr">${d==='qr'?`<img src="/api/sites/${s.slug}/qr.png?ip=${ip()}">`:''}<div class="meta">Scan with your phone camera. Phone and laptop must be on the same Wi-Fi.</div></div></div>
+      <div class="drawer ${d==='hist'?'open':''}"><ul class="hist">${(s.deploys||[]).map((x,i)=>`<li><span class="when">${fmtTime(x.time)} · ${x.files} files${x.note?' · '+esc(x.note):''}</span>${x.id===s.current?'<span class="cur">LIVE</span>':`<button onclick="rollback('${s.slug}','${x.id}')">Make live</button>`}</li>`).join('')}</ul><div class="meta" style="margin-top:6px">The last 10 versions are kept.</div></div>
+      <div class="drawer ${d==='set'?'open':''}">
+        <label class="chk"><input type="checkbox" ${s.livereload?'checked':''} onchange="setting('${s.slug}',{livereload:this.checked})"> Live reload (page refreshes after each change)</label>
+        <label class="chk"><input type="checkbox" ${s.spa?'checked':''} onchange="setting('${s.slug}',{spa:this.checked})"> Single-page app (send unknown paths to index.html)</label>
+        <div class="row"><input type="text" value="${esc(s.name)}" id="nm-${s.slug}" style="flex:1"><button onclick="setting('${s.slug}',{name:$('#nm-${s.slug}').value})">Rename</button></div>
+        <div class="row"><input type="number" value="${s.port}" id="pt-${s.slug}" style="width:110px"><button onclick="setting('${s.slug}',{port:+$('#pt-${s.slug}').value})">Change port</button></div>
+        ${s.type==='linked'?`<div class="row"><input type="text" value="${esc(s.publish_dir||'')}" placeholder="Sub-folder to serve, e.g. dist" id="pd-${s.slug}" style="flex:1"><button onclick="setting('${s.slug}',{publish_dir:$('#pd-${s.slug}').value})">Set folder</button></div>`:''}
+        <div class="row"><button class="danger" onclick="removeSite('${s.slug}')">Delete app</button></div>
+      </div>
+    </div>`}).join('');
+}
+function toggle(slug,which){openDrawers[slug]=openDrawers[slug]===which?'':which;render()}
+function copy(t){navigator.clipboard.writeText(t).then(()=>toast('Link copied'))}
+
+function pick(kind,slug=null){target=slug;(kind==='folder'?$('#pickFolder'):$('#pickFiles')).click()}
+function redeploy(slug){
+  const useFolder=confirm('Deploy a new version from a FOLDER?\n\nOK = choose a folder\nCancel = choose a .zip or files');
+  pick(useFolder?'folder':'files',slug);
+}
+$('#pickFolder').onchange=e=>{const l=[...e.target.files].map(f=>({file:f,path:f.webkitRelativePath||f.name}));e.target.value='';upload(l,target)};
+$('#pickFiles').onchange=e=>{const l=[...e.target.files].map(f=>({file:f,path:f.name}));e.target.value='';upload(l,target)};
+
+const drop=$('#drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',async e=>{
+  const entries=[...e.dataTransfer.items].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry()).filter(Boolean);
+  const out=[];
+  async function walk(entry,prefix){
+    if(SKIP.has(entry.name))return;
+    if(entry.isFile){const f=await new Promise((res,rej)=>entry.file(res,rej));out.push({file:f,path:prefix+f.name})}
+    else if(entry.isDirectory){const r=entry.createReader();let batch;do{batch=await new Promise((res,rej)=>r.readEntries(res,rej));for(const x of batch)await walk(x,prefix+entry.name+'/')}while(batch.length)}
+  }
+  $('#status').textContent='Reading files...';
+  for(const en of entries)await walk(en,'');
+  upload(out,null);
+});
+
+async function upload(list,slug){
+  list=list.filter(x=>okPath(x.path));
+  if(!list.length){$('#status').textContent='No usable files were found.';return}
+  const isZip=list.length===1&&/\.zip$/i.test(list[0].path);
+  const total=list.reduce((a,x)=>a+x.file.size,0)||1;let done=0;
+  const bar=$('#bar'),fill=bar.firstElementChild;bar.style.display='block';fill.style.width='0';
+  const progress=()=>{const pc=Math.round(done/total*100);fill.style.width=pc+'%';$('#status').textContent=`Uploading ${list.length} file${list.length>1?'s':''}... ${pc}%`};
+  let job;
+  try{
+    job=await api('/api/deploy/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug,name:slug?'':($('#newName').value.trim()||guessName(list))})});
+    const base=`/api/deploy/${job.slug}/${job.deploy}`;
+    if(isZip){await putFile(base+'/zip',list[0].file);done=total;progress()}
+    else{
+      let i=0;const worker=async()=>{while(i<list.length){const x=list[i++];await putFile(`${base}/file?path=${encodeURIComponent(x.path)}`,x.file);done+=x.file.size;progress()}};
+      await Promise.all([worker(),worker(),worker(),worker()]);
+    }
+    $('#status').textContent='Publishing...';
+    const d=await api(base+'/finish',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    $('#status').textContent=`${d.site.name} is live at ${d.site.local_url}`;$('#newName').value='';toast('Deployed');
+  }catch(e){
+    $('#status').textContent=e.message;
+    if(job)fetch(`/api/deploy/${job.slug}/${job.deploy}/cancel`,{method:'POST',body:'{}',headers:H({'Content-Type':'application/json'})}).catch(()=>{});
+  }
+  bar.style.display='none';load();
+}
+async function putFile(url,file){const r=await fetch(url,{method:'PUT',body:file,headers:H()});if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||'Upload failed.')}}
+function guessName(list){const p=list[0].path;return p.includes('/')?p.split('/')[0]:p.replace(/\.[^.]+$/,'')}
+async function linkFolder(){
+  try{const d=await api('/api/link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:$('#linkPath').value,name:$('#linkName').value})});
+    $('#linkPath').value='';$('#linkName').value='';toast(d.site.name+' linked');load()}catch(e){alert(e.message)}
+}
+async function setting(slug,body){try{await api(`/api/sites/${slug}/settings`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});toast('Saved');load()}catch(e){alert(e.message);load()}}
+async function rollback(slug,id){try{await api(`/api/sites/${slug}/rollback`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deploy:id})});toast('Version is live');load()}catch(e){alert(e.message)}}
+async function removeSite(slug){const name=(SITES.find(x=>x.slug===slug)||{}).name||'this app';if(!confirm(`Delete "${name}" from LaunchPad?`+'\n\nLinked folders on your computer are never touched.'))return;await api(`/api/sites/${slug}`,{method:'DELETE'});delete openDrawers[slug];toast('Deleted');load()}
+init();
+</script>
+</body>
+</html>

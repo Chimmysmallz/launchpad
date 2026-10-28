@@ -1,0 +1,43 @@
+name: Bug report
+description: Something is not working as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Dropped a folder containing...
+        2. Opened the phone link on...
+        3. Saw...
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Computer operating system
+      options: [Windows 11, Windows 10, macOS, Linux, Other]
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "Run: python -V"
+  - type: input
+    id: device
+    attributes:
+      label: Phone or browser (if relevant)
+      placeholder: e.g. Android Chrome, iPhone Safari
+  - type: textarea
+    id: log
+    attributes:
+      label: Messages from the LaunchPad window
+      render: text
