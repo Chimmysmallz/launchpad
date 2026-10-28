@@ -25,7 +25,7 @@ jobs:
           cp static/dashboard.html dist/LaunchPad/static/
           cd dist && zip -r LaunchPad-Kit.zip LaunchPad
       - name: Publish release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/LaunchPad-Kit.zip
           generate_release_notes: true
