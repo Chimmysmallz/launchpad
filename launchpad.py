@@ -23,6 +23,7 @@ import time
 import uuid
 import webbrowser
 import zipfile
+from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
@@ -265,6 +266,12 @@ class Base(BaseHTTPRequestHandler):
 
     def log_message(self, *args):  # keep the console quiet
         pass
+
+    def handle_expect_100(self):
+        self.send_response_only(HTTPStatus.CONTINUE)
+        self.end_headers()
+        self.wfile.flush()
+        return True
 
     def send(self, status, body=b"", ctype="text/html; charset=utf-8", headers=None):
         if isinstance(body, str):
