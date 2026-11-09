@@ -5,6 +5,7 @@ Uses only the Python standard library. Run with:  python -m unittest -v
 import io
 import json
 import os
+import socket
 import shutil
 import subprocess
 import sys
@@ -145,6 +146,28 @@ class LaunchPadSmokeTest(unittest.TestCase):
         self.assertEqual(api("POST", "/api/link", {"path": "/definitely/not/here"})[0], 400)
         _, job = api("POST", "/api/deploy/start", {"name": "Empty"})
         self.assertEqual(api("POST", f'/api/deploy/{job["slug"]}/{job["deploy"]}/finish')[0], 400)
+
+    def test_expect_100_continue_is_handled(self):
+        body = b'{"name":"Expect Header"}'
+        request = (
+            f"POST /api/deploy/start HTTP/1.1\r\n"
+            f"Host: 127.0.0.1:{DASH}\r\n"
+            "Content-Type: application/json\r\n"
+            f"Content-Length: {len(body)}\r\n"
+            "Expect: 100-continue\r\n"
+            f"X-LaunchPad-Token: {TOKEN['value']}\r\n"
+            "Connection: close\r\n"
+            "\r\n"
+        ).encode("ascii")
+
+        with socket.create_connection(("127.0.0.1", DASH), timeout=10) as sock:
+            sock.sendall(request)
+            interim = sock.recv(4096)
+            self.assertIn(b"100 Continue", interim)
+            sock.sendall(body)
+            final = interim + sock.recv(4096)
+
+        self.assertIn(b"200 OK", final)
 
 
     # ------------------------------------------------------------ security
