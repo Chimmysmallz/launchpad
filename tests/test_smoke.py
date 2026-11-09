@@ -5,6 +5,7 @@ Uses only the Python standard library. Run with:  python -m unittest -v
 import io
 import json
 import os
+import socket
 import shutil
 import subprocess
 import sys
@@ -158,6 +159,32 @@ class LaunchPadSmokeTest(unittest.TestCase):
     def test_cross_site_origin_is_refused(self):
         status, _, _ = call("POST", BASE + "/api/deploy/start", b"{}", {"Origin": "http://evil.example"})
         self.assertEqual(status, 403)
+
+    def test_expect_continue_requests_are_supported(self):
+        payload = json.dumps({"path": "/definitely/not/here"}).encode()
+        headers = (
+            f"POST /api/link HTTP/1.1\r\n"
+            f"Host: 127.0.0.1:{DASH}\r\n"
+            f"Expect: 100-continue\r\n"
+            f"Content-Type: application/json\r\n"
+            f"Content-Length: {len(payload)}\r\n"
+            f"X-LaunchPad-Token: {TOKEN['value']}\r\n"
+            f"Connection: close\r\n\r\n"
+        ).encode()
+        with socket.create_connection(("127.0.0.1", DASH), timeout=10) as conn:
+            conn.sendall(headers)
+            first = b""
+            while b"\r\n\r\n" not in first:
+                first += conn.recv(4096)
+            self.assertIn(b"HTTP/1.1 100 Continue\r\n", first)
+            conn.sendall(payload)
+            second = b""
+            while True:
+                chunk = conn.recv(4096)
+                if not chunk:
+                    break
+                second += chunk
+        self.assertIn(b"HTTP/1.1 400 Bad Request\r\n", second)
 
     def test_dns_rebinding_host_is_refused(self):
         import http.client
