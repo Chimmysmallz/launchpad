@@ -266,6 +266,12 @@ class Base(BaseHTTPRequestHandler):
     def log_message(self, *args):  # keep the console quiet
         pass
 
+    def handle_expect_100(self):
+        self.send_response_only(100)
+        self.end_headers()
+        self.wfile.flush()
+        return True
+
     def send(self, status, body=b"", ctype="text/html; charset=utf-8", headers=None):
         if isinstance(body, str):
             body = body.encode("utf-8")
