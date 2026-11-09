@@ -2,7 +2,7 @@
 
 **Drop an app, get a link. Test it on your laptop and your phone, all on your own computer.**
 
-[![Tests](https://github.com/YOUR-USERNAME/launchpad/actions/workflows/tests.yml/badge.svg)](https://github.com/YOUR-USERNAME/launchpad/actions/workflows/tests.yml)
+[![Tests](https://github.com/Chimmysmallz/launchpad/actions/workflows/tests.yml/badge.svg)](https://github.com/Chimmysmallz/launchpad/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
 ![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)
 ![No dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
