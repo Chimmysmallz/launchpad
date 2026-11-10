@@ -12,7 +12,7 @@ Thank you for helping. LaunchPad stays small on purpose, so a few ground rules k
 ## Getting set up
 
 ```sh
-git clone https://github.com/YOUR-USERNAME/launchpad.git
+git clone https://github.com/Chimmysmallz/launchpad.git
 cd launchpad
 python launchpad.py
 ```
