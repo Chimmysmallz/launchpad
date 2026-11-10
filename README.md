@@ -31,7 +31,7 @@ It is one Python file with no required installs.
 
 ### macOS and Linux
 ```sh
-git clone https://github.com/YOUR-USERNAME/launchpad.git
+git clone https://github.com/Chimmysmallz/launchpad.git
 cd launchpad
 ./start-launchpad.sh
 ```
@@ -113,4 +113,4 @@ Ideas and fixes are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
 ## License
 
-[MIT](LICENSE) © 2026 Chiamaka Nwabulue
+[MIT](LICENSE) © 2026 Chimmysmallz
