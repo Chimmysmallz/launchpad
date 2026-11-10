@@ -14,7 +14,12 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python: ["3.9", "3.13"]
+        exclude:
+          - os: ubuntu-latest
+            python: "3.9"
         include:
+          - os: ubuntu-24.04
+            python: "3.9"
           - os: ubuntu-22.04
             python: "3.8"
     steps:
