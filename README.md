@@ -61,6 +61,7 @@ If the phone cannot connect, the cause is almost always the computer's firewall.
 | Setting | How |
 |---|---|
 | Change dashboard port | `set LAUNCHPAD_PORT=9000` (Windows) or `LAUNCHPAD_PORT=9000 ./start-launchpad.sh` |
+| Change app bind address | `LAUNCHPAD_APP_HOST=127.0.0.1` (use `0.0.0.0` for phone access) |
 | Store data elsewhere | `LAUNCHPAD_DATA=/path/to/folder` |
 | Open dashboard from other devices | `python launchpad.py --lan-dashboard` |
 | Do not open a browser on start | `python launchpad.py --no-browser` |

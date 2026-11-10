@@ -38,6 +38,7 @@ SITES_DIR = DATA / "sites"
 DB_FILE = DATA / "sites.json"
 DASHBOARD = APP_DIR / "static" / "dashboard.html"
 DASH_PORT = int(os.environ.get("LAUNCHPAD_PORT", "8100"))
+APP_HOST = os.environ.get("LAUNCHPAD_APP_HOST", "0.0.0.0")
 FIRST_SITE_PORT = DASH_PORT + 1
 KEEP_DEPLOYS = 10
 PUBLISH_CANDIDATES = ["", "dist", "build", "public", "out", "site", "www", "docs"]
@@ -418,7 +419,7 @@ def start_site(slug):
         return True
     site = DB["sites"][slug]
     try:
-        srv = ThreadingHTTPServer(("0.0.0.0", site["port"]), make_site_handler(slug))
+        srv = ThreadingHTTPServer((APP_HOST, site["port"]), make_site_handler(slug))
     except OSError:
         site["error"] = f'Port {site["port"]} is busy. Pick another port in Settings.'
         return False

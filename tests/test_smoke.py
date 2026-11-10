@@ -44,7 +44,8 @@ class LaunchPadSmokeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.data = tempfile.mkdtemp(prefix="launchpad-data-")
-        env = dict(os.environ, LAUNCHPAD_PORT=str(DASH), LAUNCHPAD_DATA=cls.data)
+        env = dict(os.environ, LAUNCHPAD_PORT=str(DASH), LAUNCHPAD_APP_HOST="127.0.0.1",
+                   LAUNCHPAD_DATA=cls.data)
         cls.proc = subprocess.Popen([sys.executable, str(ROOT / "launchpad.py"), "--no-browser"],
                                     cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for _ in range(50):
