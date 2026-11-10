@@ -17,8 +17,6 @@ jobs:
         include:
           - os: ubuntu-22.04
             python: "3.8"
-          - os: ubuntu-22.04
-            python: "3.9"
           - os: ubuntu-latest
             python: "3.13"
     steps:
